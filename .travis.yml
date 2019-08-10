@@ -17,5 +17,5 @@ install:
     - "export PATH=$PWD/bin:$PWD/ncbi-blast-2.9.0+/bin:$PATH"
 
 script:
-    - "perl-biotool --version"
-    - "perl-biotool --help"
+    - "kounta --version"
+    - "kounta --help"

@@ -9,27 +9,28 @@ use Biotool::Binaries;
 use Data::Dumper;
 
 sub main {
-  require_exe($_) for qw(grep head tail);
 
   my $opt = Biotool::Getopt->getopt( 
   {
-    name => 'biotool',
+    name => 'kounta',
     version => '0.0.1',
-    desc => 'Helps do bio stuff easier and quicker',
+    desc => 'Build a k-mer presence matrix for many genomes',
+    url => 'https://github.com/tseemann/kounta',
   },
   {
-    indir => { type=>'idir', default=>'/tmp' },   
-    dbdir => { type=>'idir', need=>1 },   
-    infile => { type=>'ifile', need=>0 },
-    outdir => { type=>'dir', },
-    outfile => { type=>'file', },
-    myint => { type=>'int', default=>42, need=>1 },
-    myfloat => { type=>'float', default=>'3.14' },   
-    mybool => { type=>'bool', default=>0 },   
-    myinc => { type=>'counter', default=>0 },   
+    outmatrix => { type=>'file', need=>1 },
+    kmer => { type=>'int', default=>25, need=>1, desc=>"k-mer length" },
+    threads => { type=>'int', default=>1, need=>1, desc=>"Threads to use" },
+    minfreq => { type=>'int', default=>5, need=>1, desc=>"Min k-mer frequency to include" },
+    binary => { type=>'', desc=>"Output binary presence/absence instead of counts" },
   });
 
   print Dumper($opt);
+
+  require_exe($_) for qw(sort uniq join paste head tail kmc kmc_dump kmc_tools);
+  return if $opt->{check};
+
+  map { -r $_ or err("Can't read input file '$_'") } $opt->{ARGV}->@*;
 }
 
 exit main(@ARGV);

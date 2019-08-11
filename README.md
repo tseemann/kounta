@@ -55,6 +55,19 @@ AAAAATA  0  91  76   0
 etc.
 ```
 
+## Notes
+
+* Do not mix samples of reads and contigs, because the k-mer frequencies
+will be not comparable.
+* When using reads, the minimum k-mer frequency reported is
+currently hard-coded at 3
+* When using reads, it is recommended to only use R1, and ignore R2 as it is
+normally noisier and more error-prone, and doesn't add much extra
+information
+* If you only want "core" k-mers, you can `grep -w 0 kmers.tsv > core.tsv`.
+* To binarize the results to presence/absence you can
+`sed -e 's/[1-9][0-9]*/1/g' kmers.tsv > yesno.tsv`
+
 ## Installation
 
 ### Conda

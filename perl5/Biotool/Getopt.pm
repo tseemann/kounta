@@ -42,7 +42,7 @@ sub show_help {
   my @opt = sort keys %$p;
   my $width = max( map { length } @opt );
   for my $opt (@opt) {
-    printf "  --%-${width}s  %-7s  %s%s\n",
+    printf "  --%-${width}s  %-7s  %s %s\n",
       $opt,
       $$p{$opt}{type},
       $$p{$opt}{desc}||'',

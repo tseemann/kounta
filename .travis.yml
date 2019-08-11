@@ -5,17 +5,15 @@ sudo: false
 perl:
     - "5.26"
     
-addons:
-    apt:
-        packages:
-            - gzip
-
 install:
     - "cpanm --quiet --notest Path::Tiny SemVer File::Which"
-    - "wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.9.0/ncbi-blast-2.9.0+-x64-linux.tar.gz"
-    - "tar zxvf ncbi-blast-2.9.0+-x64-linux.tar.gz"
-    - "export PATH=$PWD/bin:$PWD/ncbi-blast-2.9.0+/bin:$PATH"
+    - "wget https://github.com/refresh-bio/KMC/releases/download/v3.1.1/KMC3.1.1.linux.tar.gz
+    - "tar -C bin -zxvf KMC3.1.1.linux.tar.gz"
+    - "export PATH=$PWD/bin:$PATH"
 
 script:
     - "kounta --version"
     - "kounta --help"
+    - "kmc"
+    - "kmc_dump"
+    - "kmc_tools"

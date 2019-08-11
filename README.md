@@ -3,23 +3,39 @@
 ![Don't judge me](https://img.shields.io/badge/Language-Perl_5-steelblue.svg)
 
 # kounta
-Small pure Perl5 libraries for writing command line bioinformatics tools
 
 ## Introduction
 
-This is a Github template for my Perl based bioinformatics tools.
+This tool will take a bunch (N) of contigs (FASTA) or reads (FASTQ.gz)
+and generate a tab-separated matrix with M rows and N+1 columns,
+where M is the number unique k-mers found across the inputs, 
+and the columns are the k-mer string and the counts for the N genomes.
 
-* search and replace `kounta` with the name of your repo
-* enable TRAVIS-CI for the repo
+It relies on `kmc` for efficient k-mer counting, then uses standard
+Unix tools like `sort`, `paste`, `cut` and `join` to combine all the 
+data into an output file without having to ever have it all in memory
+at once. The more `--threads` and `--ram` you can give it, the faster 
+it will run, assuming your disk can keep up.
 
 ## Quick Start
 
 ```
-% kounta --version
-kounta 0.1.2
+% kount --version
+kounta 0.1.0
 
-% kounta --help
+% ls *.fna
+01.fna 02.fna 03.fna 04.fna
 
+% kounta --kmer 7 --threads 8 --ram 4 --outmatrix kmers.tsv *.fna
+<snip>
+Done.
+
+% head kmers.tsv
+AAAAAAA	 0  45  21  33 
+AAAAAAT 22  21  26  87
+AAAAAAA 34   0   0   0
+AAAAAAA  0  91  76   0
+etc.
 ```
 
 ## Installation
@@ -27,13 +43,13 @@ kounta 0.1.2
 ### Conda
 Install [Conda](https://conda.io/docs/) or [Miniconda](https://conda.io/miniconda.html):
 ```
-conda install -c conda-forge -c bioconda -c defaults kounta
+conda install -c conda-forge -c bioconda -c defaults kounta  # COMING SOON
 ```
 
 ### Homebrew
 Install [HomeBrew](http://brew.sh/) (Mac OS X) or [LinuxBrew](http://linuxbrew.sh/) (Linux).
 ```
-brew install brewsci/bio/kounta
+brew install brewsci/bio/kounta  # COMING SOON
 ```
 
 ### Source
@@ -49,7 +65,10 @@ $HOME/kounta/bin/kounta --help
 ## Dependencies
 
 * `perl` >= 5.26
-* Perl modules: `Path::Tiny` `SemVer` `File::Which`
+* Perl modules: `File::Which`
+* `kmc` >= 3.0
+* `parallel` >= 20160101
+* GNU `sort`, `paste`, `join`, `cut`
 
 ## License
 

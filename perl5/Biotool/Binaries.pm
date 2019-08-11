@@ -7,7 +7,6 @@ use Exporter 'import';
 our @EXPORT = qw(require_exe);
 
 use Data::Dumper;
-use SemVer;
 use File::Which;
 use File::Basename;
 use lib '..';

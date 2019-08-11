@@ -19,22 +19,39 @@ it will run, assuming your disk can keep up.
 
 ## Quick Start
 
-```
-% kount --version
-kounta 0.1.0
+### Using contigs
 
+```
 % ls *.fna
 01.fna 02.fna 03.fna 04.fna
 
-% kounta --kmer 7 --threads 8 --ram 4 --outmatrix kmers.tsv *.fna
+% kounta --kmer 7 --outmatrix kmers.tsv *.fna
+<snip>
+Done.
+
+% head kmers.tsv
+AAAAAAA	 0   1   2   1 
+AAAAAAT  1   1   1   1
+AAAAAAG  3   0   0   0
+AAAAATA  0   1   1   0
+etc.
+```
+
+### Using reads
+
+```
+% ls *q.gz
+AX_R1.fq.gz BX_R1.fq.gz CX_R1.fq.gz DX_R1.fq.gz
+
+% kounta --kmer 7 --threads 8 --ram 4 --outmatrix kmers.tsv *.fq.gz
 <snip>
 Done.
 
 % head kmers.tsv
 AAAAAAA	 0  45  21  33 
 AAAAAAT 22  21  26  87
-AAAAAAA 34   0   0   0
-AAAAAAA  0  91  76   0
+AAAAAAG 34   0   0   0
+AAAAATA  0  91  76   0
 etc.
 ```
 
@@ -67,7 +84,7 @@ $HOME/kounta/bin/kounta --help
 * `perl` >= 5.26
 * Perl modules: `File::Which`
 * `kmc` >= 3.0
-* `parallel` >= 20160101
+* GNU `parallel` >= 20160101
 * GNU `sort`, `paste`, `join`, `cut`
 
 ## License

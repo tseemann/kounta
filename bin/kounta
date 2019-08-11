@@ -81,9 +81,16 @@ sub main {
   my $pjoin = "parallel -j $$opt{threads} -v \"join -o '1.1 2.2' -j 1 -a 1 -t \$'\\t' -e 0 $dir/uniqmers {} | cut -f2 > {.}.count\" ::: @pin"; 
   run_cmd($pjoin);
 
+  # print header first
+  msg("Writing header for output file:", $$opt{outmatrix});
+  open my $OUT, '>', $$opt{outmatrix};
+  print $OUT join("\t", '#KMER', @prefix)."\n";
+  close $OUT;
+  
+  # append matrix
   msg("Combining", scalar(@prefix), "count files.");
   my @bits = map { "$dir/$_" } ('uniqmers', map { "$_.count" } @prefix);
-  my $paste = "paste @bits > ".$$opt{outmatrix};
+  my $paste = "paste @bits >> ".$$opt{outmatrix};
   run_cmd($paste);
   
   msg("Done.");

@@ -29,9 +29,9 @@ sub main {
     outmatrix => { type=>'file', need=>1 },
     kmer => { type=>'int', default=>25, need=>1, desc=>"k-mer length" },
     threads => { type=>'int', default=>1, need=>1, desc=>"Threads to use" },
-    ram => { type=>'int', default=>8, need=>1, desc=>"RAM in gigabytes to use" },
-    #minfreq => { type=>'int', default=>5, need=>1, desc=>"Min k-mer frequency to include" },
-    binary => { type=>'', desc=>"Output binary presence/absence instead of counts" },
+    ram => { type=>'int', default=>4, need=>1, desc=>"RAM in gigabytes to use" },
+    minfreq => { type=>'int', default=>3, need=>1, desc=>"Min k-mer frequency (FASTQ only)" },
+#    binary => { type=>'', desc=>"Output binary presence/absence instead of counts" },
   });
 
 #  print Dumper($opt);
@@ -54,7 +54,7 @@ sub main {
     push @prefix, $file;
     
     msg("Counting k-mers in $path");
-    my $fmt = $file =~ m/f(ast)?q/ ? "-fq -ci3" : "-fm -ci1";
+    my $fmt = $file =~ m/\.f(ast)?q/ ? "-fq -ci".$$opt{minfreq} : "-fm -ci1";
     my $kmc = sprintf "kmc -m%d -sm -k%d -t%d $fmt $path $dir/$file $dir 1>/dev/null",
                 $$opt{ram}, $$opt{kmer}, $$opt{threads};
     run_cmd($kmc);

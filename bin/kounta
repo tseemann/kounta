@@ -7,13 +7,21 @@ use Biotool::Getopt;
 use Biotool::Logger;
 use Biotool::Binaries;
 use Data::Dumper;
+use File::Temp;
+use File::Basename;
+
+sub run_cmd {
+  my($cmd) = @_;
+  msg("Running: $cmd");
+  system($cmd)==0 or err("Could not run: $cmd");
+}
 
 sub main {
 
   my $opt = Biotool::Getopt->getopt( 
   {
     name => 'kounta',
-    version => '0.0.1',
+    version => '0.1.0',
     desc => 'Build a k-mer presence matrix for many genomes',
     url => 'https://github.com/tseemann/kounta',
   },
@@ -21,16 +29,66 @@ sub main {
     outmatrix => { type=>'file', need=>1 },
     kmer => { type=>'int', default=>25, need=>1, desc=>"k-mer length" },
     threads => { type=>'int', default=>1, need=>1, desc=>"Threads to use" },
-    minfreq => { type=>'int', default=>5, need=>1, desc=>"Min k-mer frequency to include" },
+    ram => { type=>'int', default=>8, need=>1, desc=>"RAM in gigabytes to use" },
+    #minfreq => { type=>'int', default=>5, need=>1, desc=>"Min k-mer frequency to include" },
     binary => { type=>'', desc=>"Output binary presence/absence instead of counts" },
   });
 
-  print Dumper($opt);
+#  print Dumper($opt);
+  require_exe($_) for qw(sort join paste parallel kmc kmc_dump kmc_tools);
+#  return if $opt->{check};
 
-  require_exe($_) for qw(sort uniq join paste head tail kmc kmc_dump kmc_tools);
-  return if $opt->{check};
+  my @seqfile = $opt->{ARGV}->@*;
+  @seqfile or err("Please provide some contig or read files");
+  map { -r $_ or err("Can't read input file '$_'") } @seqfile;
+  
+  my $dir = File::Temp->newdir();
+  msg("Temp folder:", $dir);
+  
+  my $sort = sprintf "LC_ALL=C sort --parallel %d --buffer-size %sG",
+                     $$opt{threads}, $$opt{ram};
+  
+  my @prefix;
+  for my $path (@seqfile) {
+    my $file = basename($path);
+    push @prefix, $file;
+    
+    msg("Counting k-mers in $path");
+    my $fmt = $file =~ m/f(ast)?q/ ? "-fq -ci3" : "-fm -ci1";
+    my $kmc = sprintf "kmc -m%d -sm -k%d -t%d $fmt $path $dir/$file $dir 1>/dev/null",
+                $$opt{ram}, $$opt{kmer}, $$opt{threads};
+    run_cmd($kmc);
+    
+    msg("Sorting k-mers in $file");    
+    my $dump = "kmc_dump $dir/$file /dev/stdout | $sort > $dir/$file.kmers";
+    run_cmd($dump);
+    unlink "$dir/$file.kmc_suf";
+    unlink "$dir/$file.kmc_pre";
+  }
 
-  map { -r $_ or err("Can't read input file '$_'") } $opt->{ARGV}->@*;
+  msg("Find unique kmers");
+  my $uniq = "$sort -m -u $dir/*.kmers | cut -f1 > $dir/uniqmers";
+  run_cmd($uniq);
+
+  # FIXME - do this using GNU parallel  
+  for my $prefix (@prefix) {
+ #   msg("Joining $prefix to uniqmers");
+ #   my $join = "join -o '1.1 2.2' -j 1 -a 1 -t \$'\\t' -e 0 $dir/uniqmers $dir/$prefix.kmers | cut -f2 > $dir/$prefix.count";
+ #   run_cmd($join);
+  }
+  msg("Joining uniqmers to sample k-mer counts");
+  my @pin = map { "$dir/$_.kmers" } @prefix;
+  my $pjoin = "parallel -j $$opt{threads} -v \"join -o '1.1 2.2' -j 1 -a 1 -t \$'\\t' -e 0 $dir/uniqmers {} | cut -f2 > {.}.count\" ::: @pin"; 
+  run_cmd($pjoin);
+
+  msg("Combining", scalar(@prefix), "count files.");
+  my @bits = map { "$dir/$_" } ('uniqmers', map { "$_.count" } @prefix);
+  my $paste = "paste @bits > ".$$opt{outmatrix};
+  run_cmd($paste);
+  
+  msg("Done.");
+  return 0;
 }
 
 exit main(@ARGV);
+

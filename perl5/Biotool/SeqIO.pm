@@ -3,10 +3,8 @@ package Biotool::SeqIO;
 use 5.26.0;
 use strict;
 use Data::Dumper;
-#use URI::Escape;
-
-sub msg { print STDERR "@_\n"; }
-sub err { msg("ERROR: @_"); exit(1); }
+use lib '..';
+use Biotool::Logger;
 
 sub uri_escape { $_[0]; }
 sub uri_unescape { $_[0]; }
@@ -315,12 +313,14 @@ sub main {
 #  write_genbank('gff.gbk', $g);
 #  write_fasta('gff.fa', $g);
 #  write_gff3('gff.gff', $g);
-  my $n = read_genbank('small.gbk');
-  print Dumper($n);
-  write_genbank('out.gbk', $n);
+#  my $n = read_genbank('small.gbk');
+#  print Dumper($n);
+#  write_genbank('out.gbk', $n);
   return 0;
 };
 
-1;
+if (basename($0) eq 'SeqIO.pm') {
+  exit main();
+}
 
-exit main();
+1;

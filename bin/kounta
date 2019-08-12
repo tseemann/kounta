@@ -21,7 +21,7 @@ sub main {
   my $opt = Biotool::Getopt->getopt( 
   {
     name => 'kounta',
-    version => '0.1.0',
+    version => '0.1.1',
     desc => 'Build a k-mer presence matrix for many genomes',
     url => 'https://github.com/tseemann/kounta',
   },
@@ -45,7 +45,7 @@ sub main {
   my $dir = File::Temp->newdir();
   msg("Temp folder:", $dir);
   
-  my $sort = sprintf "LC_ALL=C sort --parallel %d --buffer-size %sG",
+  my $sort = sprintf "LC_ALL=C sort --parallel %d --buffer-size %sG -t \$'\\t'",
                      $$opt{threads}, $$opt{ram};
   
   my @prefix;
@@ -55,27 +55,24 @@ sub main {
     
     msg("Counting k-mers in $path");
     my $fmt = $file =~ m/\.f(ast)?q/ ? "-fq -ci".$$opt{minfreq} : "-fm -ci1";
-    my $kmc = sprintf "kmc -m%d -sm -k%d -t%d $fmt $path $dir/$file $dir 1>/dev/null",
+    my $kmc = sprintf "kmc -cs65535 -m%d -sm -k%d -t%d $fmt $path $dir/$file $dir 1>/dev/null",
                 $$opt{ram}, $$opt{kmer}, $$opt{threads};
     run_cmd($kmc);
     
     msg("Sorting k-mers in $file");    
-    my $dump = "kmc_dump $dir/$file /dev/stdout | $sort > $dir/$file.kmers";
+    my $dump = "kmc_dump $dir/$file /dev/stdout | $sort -k1,1d > $dir/$file.kmers";
     run_cmd($dump);
     unlink "$dir/$file.kmc_suf";
     unlink "$dir/$file.kmc_pre";
+    system("head -n 5 $dir/$file.kmers");
   }
 
-  msg("Find unique kmers");
-  my $uniq = "$sort -m -u $dir/*.kmers | cut -f1 > $dir/uniqmers";
+  my $nsamp = scalar(@prefix);
+  msg("Find unique kmers from $nsamp files");
+  my $uniq = "$sort -m -u --batch-size=$nsamp $dir/*.kmers | cut -f1 > $dir/uniqmers";
   run_cmd($uniq);
+  system("head -n 10 $dir/uniqmers");
 
-  # FIXME - do this using GNU parallel  
-  for my $prefix (@prefix) {
- #   msg("Joining $prefix to uniqmers");
- #   my $join = "join -o '1.1 2.2' -j 1 -a 1 -t \$'\\t' -e 0 $dir/uniqmers $dir/$prefix.kmers | cut -f2 > $dir/$prefix.count";
- #   run_cmd($join);
-  }
   msg("Joining uniqmers to sample k-mer counts");
   my @pin = map { "$dir/$_.kmers" } @prefix;
   my $pjoin = "parallel -j $$opt{threads} -v \"join -o '1.1 2.2' -j 1 -a 1 -t \$'\\t' -e 0 $dir/uniqmers {} | cut -f2 > {.}.count\" ::: @pin"; 
@@ -88,11 +85,14 @@ sub main {
   close $OUT;
   
   # append matrix
-  msg("Combining", scalar(@prefix), "count files.");
+  msg("Combining $nsamp count files.");
   my @bits = map { "$dir/$_" } ('uniqmers', map { "$_.count" } @prefix);
   my $paste = "paste @bits >> ".$$opt{outmatrix};
   run_cmd($paste);
-  
+
+  # finish up
+  system("wc -l $dir/*");  
+  msg("Result in:", $$opt{outmatrix});
   msg("Done.");
   return 0;
 }

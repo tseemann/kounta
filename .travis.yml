@@ -2,6 +2,11 @@ language: perl
 
 sudo: false
 
+addons:
+  apt:
+    packages:
+        - parallel
+    
 perl:
     - "5.26"
     

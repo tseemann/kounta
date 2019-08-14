@@ -29,11 +29,12 @@ it will run, assuming your disk can keep up.
 <snip>
 Done.
 
-% head kmers.tsv
-AAAAAAA	 0   1   2   1 
-AAAAAAT  1   1   1   1
-AAAAAAG  3   0   0   0
-AAAAATA  0   1   1   0
+% head -n 5 kmers.tsv
+#KMER    01.fna 02.fna 03.fna 04.fna
+AAAAAAA	 0      1      2      1 
+AAAAAAT  1      1      1      1
+AAAAAAG  3      0      0      0
+AAAAATA  0      1      1      0
 etc.
 ```
 
@@ -47,11 +48,12 @@ AX_R1.fq.gz BX_R1.fq.gz CX_R1.fq.gz DX_R1.fq.gz
 <snip>
 Done.
 
-% head kmers.tsv
-AAAAAAA	 0  45  21  33 
-AAAAAAT 22  21  26  87
-AAAAAAG 34   0   0   0
-AAAAATA  0  91  76   0
+% head -n 5 kmers.tsv
+#KMER    AX_R1.fq.gz BX_R1.fq.gz CX_R1.fq.gz DX_R1.fq.gz
+AAAAAAA	           0          45          21          33 
+AAAAAAT           22          21          26          87
+AAAAAAG           34           0           0           0
+AAAAATA            0          91          76           0
 etc.
 ```
 
@@ -59,8 +61,7 @@ etc.
 
 * Do not mix samples of reads and contigs, because the k-mer frequencies
 will be not comparable.
-* When using reads, the minimum k-mer frequency reported is
-currently hard-coded at 3
+* When using reads, the minimum k-mer frequency reported is `--minfreq`
 * When using reads, it is recommended to only use R1, and ignore R2 as it is
 normally noisier and more error-prone, and doesn't add much extra
 information
@@ -96,9 +97,9 @@ $HOME/kounta/bin/kounta --help
 
 * `perl` >= 5.26
 * Perl modules: `File::Which`
-* `kmc` >= 3.0
+* `kmc` >= 3.1
 * GNU `parallel` >= 20160101
-* GNU `sort`, `paste`, `join`, `cut`
+* GNU `sort`, `paste`, `join`, `cut`, `uniq`
 
 ## License
 

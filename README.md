@@ -29,7 +29,7 @@ it will run, assuming your disk can keep up.
 <snip>
 Done.
 
-% head -n 5 kmers.tsv
+% head kmers.tsv
 #KMER    01.fna 02.fna 03.fna 04.fna
 AAAAAAA	 0      1      2      1 
 AAAAAAT  1      1      1      1
@@ -48,7 +48,7 @@ AX_R1.fq.gz BX_R1.fq.gz CX_R1.fq.gz DX_R1.fq.gz
 <snip>
 Done.
 
-% head -n 5 kmers.tsv
+% head kmers.tsv
 #KMER    AX_R1.fq.gz BX_R1.fq.gz CX_R1.fq.gz DX_R1.fq.gz
 AAAAAAA	           0          45          21          33 
 AAAAAAT           22          21          26          87

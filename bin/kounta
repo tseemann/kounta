@@ -23,7 +23,7 @@ sub main {
   my $opt = Biotool::Getopt->getopt( 
   {
     name => 'kounta',
-    version => '0.1.3',
+    version => '0.1.4',
     desc => 'Build a multi-genome k-mer count matrix',
     url => 'https://github.com/tseemann/kounta',
   },
@@ -41,8 +41,8 @@ sub main {
   require_exe($_) for qw(sort join paste uniq parallel kmc kmc_tools);
 #  return if $opt->{check};
 
+  $$opt{ARGV} or err("Please provide some contig or read files");
   my @seqfile = $opt->{ARGV}->@*;
-  @seqfile or err("Please provide some contig or read files");
   map { -r $_ or err("Can't read input file '$_'") } @seqfile;
 
   # use system tempdir() unless user requests a folder

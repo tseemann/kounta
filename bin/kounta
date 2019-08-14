@@ -94,20 +94,20 @@ sub main {
   run_cmd($pjoin);
 
   # print header first
-  msg("Writing header for output file:", $$opt{outmatrix});
-  open my $OUT, '>', $$opt{outmatrix};
+  msg("Writing header for output file:", $$opt{out});
+  open my $OUT, '>', $$opt{out};
   print $OUT join("\t", '#KMER', @prefix)."\n";
   close $OUT;
   
   # append matrix
   msg("Combining $nsamp count files.");
   my @bits = map { "$dir/$_" } ('uniqmers', map { "$_.count" } @prefix);
-  my $paste = "paste @bits >> ".$$opt{outmatrix};
+  my $paste = "paste @bits >> ".$$opt{out};
   run_cmd($paste);
 
   # finish up
   system("wc -l $dir/*");  
-  msg("Result in:", $$opt{outmatrix});
+  msg("Result in:", $$opt{out});
   msg("Done.");
   return 0;
 }

@@ -13,8 +13,9 @@ use File::Path qw(make_path remove_tree);
 
 sub run_cmd {
   my($cmd) = @_;
+  $cmd = "LC_ALL=C $cmd";
   msg("Running: $cmd");
-  system($cmd)==0 or err("Could not run: $cmd");
+  system($cmd)==0 or err("[$!] could not run: $cmd");
 }
 
 sub main {
@@ -23,7 +24,7 @@ sub main {
   my $opt = Biotool::Getopt->getopt( 
   {
     name => 'kounta',
-    version => '0.1.4',
+    version => '0.1.5',
     desc => 'Build a multi-genome k-mer count matrix',
     url => 'https://github.com/tseemann/kounta',
   },
@@ -55,7 +56,7 @@ sub main {
   }
   msg("Temp folder:", $dir);
   
-  my $sort = sprintf "LC_ALL=C sort --parallel %d --buffer-size %dG -t $TAB",
+  my $sort = sprintf "sort --parallel %d --buffer-size %dG -t $TAB",
                      $$opt{threads}, $$opt{ram};
   
   my @prefix;

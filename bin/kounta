@@ -19,8 +19,6 @@ sub run_cmd {
 }
 
 sub main {
-  my $TAB = q{$'\t'}; # literal tab in /bin/sh
-
   my $opt = Biotool::Getopt->getopt( 
   {
     name => 'kounta',
@@ -56,7 +54,7 @@ sub main {
   }
   msg("Temp folder:", $dir);
   
-  my $sort = sprintf "sort --parallel %d --buffer-size %dG -t $TAB",
+  my $sort = sprintf "sort --parallel %d --buffer-size %dG",
                      $$opt{threads}, $$opt{ram};
   
   my @prefix;
@@ -90,7 +88,7 @@ sub main {
   msg("Joining uniqmers to sample k-mer counts");
   my @pin = map { "$dir/$_.kmers" } @prefix;
   my $pjoin = "parallel -j $$opt{threads} -v"
-            . " \"join -o '1.1 2.2' -j 1 -a 1 -t $TAB -e 0 $dir/uniqmers {}" 
+            . " \"join -o '1.1 2.2' -j 1 -a 1 -e 0 $dir/uniqmers {}" 
             . " | cut -f2 > {.}.count\" ::: @pin"; 
   run_cmd($pjoin);
 

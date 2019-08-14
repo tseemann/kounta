@@ -7,7 +7,7 @@ perl:
     
 install:
     - "cpanm --quiet --notest File::Which"
-    - "wget https://github.com/refresh-bio/KMC/releases/download/v3.1.1/KMC3.1.1.linux.tar.gz
+    - "wget https://github.com/refresh-bio/KMC/releases/download/v3.1.1/KMC3.1.1.linux.tar.gz"
     - "tar -C bin -zxvf KMC3.1.1.linux.tar.gz"
     - "export PATH=$PWD/bin:$PATH"
 
@@ -15,7 +15,6 @@ script:
     - "kounta --version"
     - "kounta --help"
     - "kmc"
-    - "kmc_dump"
     - "kmc_tools"
-    - "kounta --threads 2 --ram 3 --outmatrix kmers.tsv example/*.fna"
+    - "kounta --threads 2 --ram 3 --out kmers.tsv example/*.fna"
     - "wc -l kmers.tsv"

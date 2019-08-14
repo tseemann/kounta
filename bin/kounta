@@ -9,6 +9,7 @@ use Biotool::Binaries;
 use Data::Dumper;
 use File::Temp;
 use File::Basename;
+use File::Path qw(make_path remove_tree);
 
 sub run_cmd {
   my($cmd) = @_;
@@ -17,11 +18,12 @@ sub run_cmd {
 }
 
 sub main {
+  my $TAB = q{$'\t'}; # literal tab in /bin/sh
 
   my $opt = Biotool::Getopt->getopt( 
   {
     name => 'kounta',
-    version => '0.1.1',
+    version => '0.1.2',
     desc => 'Build a k-mer presence matrix for many genomes',
     url => 'https://github.com/tseemann/kounta',
   },
@@ -31,21 +33,29 @@ sub main {
     threads => { type=>'int', default=>1, need=>1, desc=>"Threads to use" },
     ram => { type=>'int', default=>4, need=>1, desc=>"RAM in gigabytes to use" },
     minfreq => { type=>'int', default=>3, need=>1, desc=>"Min k-mer frequency (FASTQ only)" },
+    tempdir => { type=>'string', default=>'auto', desc=>"Fast working directory" }
 #    binary => { type=>'', desc=>"Output binary presence/absence instead of counts" },
   });
 
 #  print Dumper($opt);
-  require_exe($_) for qw(sort join paste parallel kmc kmc_dump kmc_tools);
+  require_exe($_) for qw(sort join paste uniq parallel kmc kmc_tools);
 #  return if $opt->{check};
 
   my @seqfile = $opt->{ARGV}->@*;
   @seqfile or err("Please provide some contig or read files");
   map { -r $_ or err("Can't read input file '$_'") } @seqfile;
-  
-  my $dir = File::Temp->newdir();
+
+  # use system tempdir() unless user requests a folder
+  my $dir = $$opt{tempdir};
+  if (!$dir or $dir eq 'auto') {
+    $dir = File::Temp->newdir();
+  }
+  else {
+    make_path($dir);
+  }
   msg("Temp folder:", $dir);
   
-  my $sort = sprintf "LC_ALL=C sort --parallel %d --buffer-size %sG -t \$'\\t'",
+  my $sort = sprintf "LC_ALL=C sort --parallel %d --buffer-size %dG -t $TAB",
                      $$opt{threads}, $$opt{ram};
   
   my @prefix;
@@ -60,7 +70,9 @@ sub main {
     run_cmd($kmc);
     
     msg("Sorting k-mers in $file");    
-    my $dump = "kmc_dump $dir/$file /dev/stdout | $sort -k1,1d > $dir/$file.kmers";
+    # https://github.com/refresh-bio/KMC/issues/131
+    # my $dump = "kmc_dump $dir/$file /dev/stdout | $sort -k1,1d > $dir/$file.kmers";
+    my $dump = "kmc_tools transform $dir/$file dump -s $dir/$file.kmers";
     run_cmd($dump);
     unlink "$dir/$file.kmc_suf";
     unlink "$dir/$file.kmc_pre";
@@ -69,13 +81,16 @@ sub main {
 
   my $nsamp = scalar(@prefix);
   msg("Find unique kmers from $nsamp files");
-  my $uniq = "$sort -m -u --batch-size=$nsamp $dir/*.kmers | cut -f1 > $dir/uniqmers";
+  # we perform an efficient merge sort rather than cat+sort
+  my $uniq = "$sort -m --batch-size=$nsamp $dir/*.kmers | cut -f1 | uniq > $dir/uniqmers";
   run_cmd($uniq);
   system("head -n 10 $dir/uniqmers");
 
   msg("Joining uniqmers to sample k-mer counts");
   my @pin = map { "$dir/$_.kmers" } @prefix;
-  my $pjoin = "parallel -j $$opt{threads} -v \"join -o '1.1 2.2' -j 1 -a 1 -t \$'\\t' -e 0 $dir/uniqmers {} | cut -f2 > {.}.count\" ::: @pin"; 
+  my $pjoin = "parallel -j $$opt{threads} -v"
+            . " \"join -o '1.1 2.2' -j 1 -a 1 -t $TAB -e 0 $dir/uniqmers {}" 
+            . " | cut -f2 > {.}.count\" ::: @pin"; 
   run_cmd($pjoin);
 
   # print header first

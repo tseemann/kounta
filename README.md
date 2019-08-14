@@ -25,7 +25,7 @@ it will run, assuming your disk can keep up.
 % ls *.fna
 01.fna 02.fna 03.fna 04.fna
 
-% kounta --kmer 7 --outmatrix kmers.tsv *.fna
+% kounta --kmer 7 --out kmers.tsv *.fna
 <snip>
 Done.
 
@@ -44,7 +44,7 @@ etc.
 % ls *q.gz
 AX_R1.fq.gz BX_R1.fq.gz CX_R1.fq.gz DX_R1.fq.gz
 
-% kounta --kmer 7 --threads 8 --ram 4 --outmatrix kmers.tsv *.fq.gz
+% kounta --kmer 7 --threads 8 --ram 4 --out kmers.tsv *.fq.gz
 <snip>
 Done.
 

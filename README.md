@@ -96,7 +96,6 @@ $HOME/kounta/bin/kounta --help
 ## Dependencies
 
 * `perl` >= 5.26
-* Perl modules: `File::Which`
 * `kmc` >= 3.1
 * GNU `parallel` >= 20160101
 * GNU `sort`, `paste`, `join`, `cut`, `uniq`

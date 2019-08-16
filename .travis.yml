@@ -11,7 +11,6 @@ perl:
     - "5.26"
     
 install:
-    - "cpanm --quiet --notest File::Which"
     - "wget https://github.com/refresh-bio/KMC/releases/download/v3.1.1/KMC3.1.1.linux.tar.gz"
     - "tar -C bin -zxvf KMC3.1.1.linux.tar.gz"
     - "export PATH=$PWD/bin:$PATH"

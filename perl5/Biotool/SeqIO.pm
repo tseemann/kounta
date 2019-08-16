@@ -5,7 +5,6 @@ use strict;
 use Data::Dumper;
 use lib '..';
 use Biotool::Logger;
-use File::Basename;
 
 sub uri_escape { $_[0]; }
 sub uri_unescape { $_[0]; }

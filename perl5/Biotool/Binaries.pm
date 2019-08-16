@@ -4,11 +4,11 @@ use 5.26.0;
 use strict;
 
 use Exporter 'import';
-our @EXPORT = qw(require_exe);
+our @EXPORT = qw(require_exe which_exe);
 
 use Data::Dumper;
-use File::Which;
 use File::Basename;
+use File::Spec;
 use lib '..';
 use Biotool::Logger;
 
@@ -51,9 +51,17 @@ my %VERSION = (
   'velveth'         => 'velveth 2>&1 | grep Version',
 );
 
+sub which_exe {
+  my($exe) = @_;
+  for my $dir (File::Spec->path) {
+    my $path = "$dir/$exe";
+    return $path if -r $path and -x _;
+  }
+}
+
 sub require_exe {
-  my($exe, $cmd, $minver, $maxver) = @_;
-  my $path = which($exe) or err("Could not find needed tool '$exe'");
+  my($exe, $cmd) = @_;
+  my $path = which_exe($exe) or err("Could not find needed tool '$exe'");
   unless ($cmd) {
     $cmd = $VERSION{$exe} || "$exe --version 2>&1";
   }
@@ -62,7 +70,6 @@ sub require_exe {
   $line =~ m/(\d+\.\d+(\.\d+)?)/;
   my $ver = $1 || 'unknown';
   msg("Found: $exe $ver => $path");
-  # FIXME: add support for minver and maxver checking
 }
 
 

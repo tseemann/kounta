@@ -30,7 +30,7 @@ sub main {
   my $opt = Biotool::Getopt->getopt( 
   {
     name => 'kounta',
-    version => '0.2.1',
+    version => '0.2.2',
     desc => 'Build a multi-genome k-mer count matrix',
     url => 'https://github.com/tseemann/kounta',
   },
@@ -51,7 +51,12 @@ sub main {
     push $opt->{ARGV}->@*, @fname;
   }
 
-  print Dumper($opt);
+  for my $name (keys %$opt) {
+    next if $name eq 'ARGV';
+    my $value = $$opt{$name} // 'undefined';
+    msg("Option: --$name = $value");
+  }
+
   require_exe($_) for qw(sort join paste uniq parallel kmc kmc_tools);
 #  return if $opt->{check};
 

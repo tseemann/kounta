@@ -18,16 +18,25 @@ sub run_cmd {
   system($cmd)==0 or err("[$!] could not run: $cmd");
 }
 
+sub read_lines {
+  my($fname) = @_;
+  open my $fh, '<', $fname or err("Can't read file: $fname");
+  chomp(my @lines = <$fh>);
+  close $fh;
+  return @lines;
+}
+
 sub main {
   my $opt = Biotool::Getopt->getopt( 
   {
     name => 'kounta',
-    version => '0.2.0',
+    version => '0.2.1',
     desc => 'Build a multi-genome k-mer count matrix',
     url => 'https://github.com/tseemann/kounta',
   },
   {
     out => { type=>'file', need=>1, desc=>"Output matrix file" },
+    fofn => { type=>'file', desc=>"File of filenames to process" },
     kmer => { type=>'int', default=>25, need=>1, desc=>"k-mer length" },
     threads => { type=>'int', default=>1, need=>1, desc=>"Threads to use" },
     ram => { type=>'int', default=>4, need=>1, desc=>"RAM in gigabytes to use" },
@@ -36,7 +45,13 @@ sub main {
 #    binary => { type=>'', desc=>"Output binary presence/absence instead of counts" },
   });
 
-#  print Dumper($opt);
+  # if user provided a FOFN, add to ARGV list
+  if ($$opt{fofn}) {
+    my @fname = read_lines( $$opt{fofn} );
+    push $opt->{ARGV}->@*, @fname;
+  }
+
+  print Dumper($opt);
   require_exe($_) for qw(sort join paste uniq parallel kmc kmc_tools);
 #  return if $opt->{check};
 

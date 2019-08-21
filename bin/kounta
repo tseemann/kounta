@@ -30,7 +30,7 @@ sub main {
   my $opt = Biotool::Getopt->getopt( 
   {
     name => 'kounta',
-    version => '0.2.2',
+    version => '0.2.3',
     desc => 'Build a multi-genome k-mer count matrix',
     url => 'https://github.com/tseemann/kounta',
   },
@@ -57,7 +57,7 @@ sub main {
     msg("Option: --$name = $value");
   }
 
-  require_exe($_) for qw(sort join paste uniq parallel kmc kmc_tools);
+  require_exe($_) for qw(sort join paste uniq wc parallel kmc kmc_tools);
 #  return if $opt->{check};
 
   $$opt{ARGV} or err("Please provide some contig or read files");
@@ -95,7 +95,7 @@ sub main {
     run_cmd($dump);
     unlink "$dir/$file.kmc_suf";
     unlink "$dir/$file.kmc_pre";
-    system("head -n 5 $dir/$file.kmers");
+    run_cmd("head -n 5 $dir/$file.kmers");
   }
 
   my $nsamp = scalar(@prefix);
@@ -103,7 +103,7 @@ sub main {
   # we perform an efficient merge sort rather than cat+sort
   my $uniq = "$sort -m --batch-size=$nsamp $dir/*.kmers | cut -f1 | uniq > $dir/uniqmers";
   run_cmd($uniq);
-  system("head -n 10 $dir/uniqmers");
+  run_cmd("head -n 10 $dir/uniqmers");
 
   msg("Joining uniqmers to sample k-mer counts");
   my @pin = map { "$dir/$_.kmers" } @prefix;
@@ -125,7 +125,7 @@ sub main {
   run_cmd($paste);
 
   # finish up
-  system("wc -l $dir/*");  
+  run_cmd("wc -l $dir/*");  
   msg("Result in:", $$opt{out});
   msg("Done.");
   return 0;

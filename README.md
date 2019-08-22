@@ -65,9 +65,11 @@ will be not comparable.
 * When using reads, it is recommended to only use R1, and ignore R2 as it is
 normally noisier and more error-prone, and doesn't add much extra
 information
-* If you only want "core" k-mers, you can `grep -w 0 kmers.tsv > core.tsv`.
+* If you only want "core" k-mers, you can `grep -v -w 0 kmers.tsv > core.tsv`
+ (NOTE: will removed header line)
 * To binarize the results to presence/absence you can
 `sed -e 's/[1-9][0-9]*/1/g' kmers.tsv > yesno.tsv`
+(NOTE: will mess up header line)
 
 ## Installation
 

@@ -74,13 +74,13 @@ information
 ### Conda
 Install [Conda](https://conda.io/docs/) or [Miniconda](https://conda.io/miniconda.html):
 ```
-conda install -c conda-forge -c bioconda -c defaults kounta  # COMING SOON
+conda install -c conda-forge -c bioconda -c defaults kounta
 ```
 
 ### Homebrew
 Install [HomeBrew](http://brew.sh/) (Mac OS X) or [LinuxBrew](http://linuxbrew.sh/) (Linux).
 ```
-brew install brewsci/bio/kounta  # COMING SOON
+brew install brewsci/bio/kounta
 ```
 
 ### Source

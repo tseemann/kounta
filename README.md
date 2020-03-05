@@ -68,7 +68,7 @@ information
 * If you only want "core" k-mers, you can `grep -v -w 0 kmers.tsv > core.tsv`
  (NOTE: will removed header line)
 * To binarize the results to presence/absence you can
-`sed -e 's/[1-9][0-9]*/1/g' kmers.tsv > yesno.tsv`
+`sed -e '1 ! s/[1-9][0-9]*/1/g' kmers.tsv > yesno.tsv`
 (NOTE: will mess up header line)
 
 ## Installation

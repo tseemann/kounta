@@ -30,7 +30,7 @@ sub main {
   my $opt = Biotool::Getopt->getopt( 
   {
     name => 'kounta',
-    version => '0.2.3',
+    version => '0.2.4',
     desc => 'Build a multi-genome k-mer count matrix',
     url => 'https://github.com/tseemann/kounta',
   },
@@ -57,8 +57,11 @@ sub main {
     msg("Option: --$name = $value");
   }
 
-  require_exe($_) for qw(sort join paste uniq wc parallel kmc kmc_tools);
+  require_exe($_) for qw(sort join paste uniq wc grep parallel kmc kmc_tools);
 #  return if $opt->{check};
+
+  system("sort --help | grep 'parallel=' > /dev/null")
+    and err("Only GNU sort is supported, you probably have MacOS/BSD sort.");
 
   $$opt{ARGV} or err("Please provide some contig or read files");
   my @seqfile = $opt->{ARGV}->@*;

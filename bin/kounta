@@ -30,7 +30,7 @@ sub main {
   my $opt = Biotool::Getopt->getopt( 
   {
     name => 'kounta',
-    version => '0.2.4',
+    version => '0.2.5',
     desc => 'Build a multi-genome k-mer count matrix',
     url => 'https://github.com/tseemann/kounta',
   },

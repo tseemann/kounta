@@ -1,8 +1,12 @@
-[![Build Status](https://travis-ci.org/tseemann/kounta.svg?branch=master)](https://travis-ci.org/tseemann/kounta)
+[![CI](https://github.com/tseemann/kounta/workflows/CI/badge.svg)](https://github.com/tseemann/kounta/actions)
+[![GitHub release](https://img.shields.io/github/release/tseemann/kounta.svg)](https://github.com/tseemann/kounta/releases)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-![Don't judge me](https://img.shields.io/badge/Language-Perl_5-steelblue.svg)
+[![Conda](https://img.shields.io/conda/dn/bioconda/kounta.svg)](https://anaconda.org/bioconda/kounta)
+[![Language: Perl 5](https://img.shields.io/badge/Language-Perl%205-blue.svg)](https://www.perl.org/)
 
 # kounta
+
+Build a multi-genome unique k-mer count matrix
 
 ## Introduction
 
@@ -73,34 +77,9 @@ information
 
 ## Installation
 
-### Conda
-Install [Conda](https://conda.io/docs/) or [Miniconda](https://conda.io/miniconda.html):
 ```
-conda install -c conda-forge -c bioconda -c defaults kounta
+conda install -c conda-forge -c bioconda kounta
 ```
-
-### Homebrew
-Install [HomeBrew](http://brew.sh/) (Mac OS X) or [LinuxBrew](http://linuxbrew.sh/) (Linux).
-```
-brew install brewsci/bio/kounta
-```
-
-### Source
-This will install the latest version direct from Github.
-You'll need to add the kounta `bin` directory to your `$PATH`,
-and also ensure all the [dependencies](#Dependencies) are installed.
-```
-cd $HOME
-git clone https://github.com/tseemann/kounta.git
-$HOME/kounta/bin/kounta --help
-```
-
-## Dependencies
-
-* `perl` >= 5.26
-* `kmc` >= 3.1
-* GNU `parallel` >= 20160101
-* GNU `sort`, `paste`, `join`, `cut`, `uniq`, `wc`
 
 ## License
 
@@ -114,4 +93,6 @@ Please submit suggestions and bug reports to the
 
 ## Author
 
-[Torsten Seemann](https://twitter.com/torstenseemann)
+[Torsten Seemann](https://tseemann.github.io/)
+
+

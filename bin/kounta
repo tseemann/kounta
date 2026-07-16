@@ -41,7 +41,8 @@ sub main {
     threads => { type=>'int', default=>1, need=>1, desc=>"Threads to use" },
     ram => { type=>'int', default=>4, need=>1, desc=>"RAM in gigabytes to use" },
     minfreq => { type=>'int', default=>3, need=>1, desc=>"Min k-mer frequency (FASTQ only)" },
-    tempdir => { type=>'string', default=>'auto', desc=>"Fast working directory" }
+    tempdir => { type=>'string', default=>'auto', desc=>"Fast working directory" },
+    maxcount => { type=>'int', default=>65535, need=>1, desc=>"Max k-mer counter value" },
 #    binary => { type=>'', desc=>"Output binary presence/absence instead of counts" },
   });
 
@@ -87,8 +88,8 @@ sub main {
     
     msg("Counting k-mers in $path");
     my $fmt = $file =~ m/\.f(ast)?q/ ? "-fq -ci".$$opt{minfreq} : "-fm -ci1";
-    my $kmc = sprintf "kmc -cs65535 -m%d -sm -k%d -t%d $fmt $path $dir/$file $dir 1>/dev/null",
-                $$opt{ram}, $$opt{kmer}, $$opt{threads};
+    my $kmc = sprintf "kmc -cs%d -m%d -sm -k%d -t%d $fmt $path $dir/$file $dir 1>/dev/null",
+                $$opt{maxcount}, $$opt{ram}, $$opt{kmer}, $$opt{threads};
     run_cmd($kmc);
     
     msg("Sorting k-mers in $file");    
